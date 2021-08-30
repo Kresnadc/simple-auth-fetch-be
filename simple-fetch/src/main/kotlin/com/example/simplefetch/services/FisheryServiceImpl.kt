@@ -28,6 +28,9 @@ class FisheryServiceImpl(
     private val logger: KLogger = KotlinLogging.logger {}
 ) : FisheryService {
 
+    /**
+     * Fetch Data from API efishery and Store to local database
+     */
     override fun fetchOutboundData(): String {
         val uri = "https://stein.efishery.com/v1/storages/5e1edf521073e315924ceab4/list"
 
@@ -61,6 +64,9 @@ class FisheryServiceImpl(
         return responseEntity.statusCode.name
     }
 
+    /**
+     * Fetch Data efishery from local database
+     */
     override fun fetchData(): List<FisheryResponse> {
         val fisheries = fisheryRepository.findAll()
         var res = mutableListOf<FisheryResponse>()
@@ -94,19 +100,25 @@ class FisheryServiceImpl(
         return res
     }
 
+    /**
+     * Function for acquiring rate IDR to USD
+     * Fetch from local database
+     * If not exists on database, call currency converter API
+     */
     private fun getPriceUsd(): Double {
         var currencyExisting =
             currencyRepository.findOneByBaseAndConvertTo("USD", "IDR")
 
+        // Check currency already stored or expired
         if (currencyExisting == null || isCurrencyExpired(currencyExisting)) {
-            logger.info("### Fetch currency rate data online ###")
-
             // https://fixer.io/quickstart
             // kresna_dcahyo@yahoo.co.id
 
+            logger.info("### Fetch currency rate data online!")
+
+            // Call HTTP Request to currency converter API
             val uri =
                 "http://data.fixer.io/api/latest?access_key=3bb2fde0fb69222982de89dc45c30030&symbols=USD,IDR"
-
             var restTemplate = RestTemplate()
             var responseEntity: ResponseEntity<CurrencyConverterOutboundResponse?> =
                 restTemplate.exchange(
@@ -115,8 +127,9 @@ class FisheryServiceImpl(
                         ParameterizedTypeReference<CurrencyConverterOutboundResponse?>() {}
                 )
 
-            println(responseEntity)
+            logger.info("### Response RestTemplate: $responseEntity")
 
+            // Check response code 200
             if (responseEntity.statusCode.equals(HttpStatus.OK)) {
                 val rates = responseEntity.body!!.rates!!
                 val value = rates.usd!! / rates.idr!!
@@ -129,6 +142,7 @@ class FisheryServiceImpl(
                     LocalDateTime.now()
                 )
 
+                // Store currency to storage
                 currencyRepository.save(currencyExisting)
                 return value
             }
@@ -136,9 +150,11 @@ class FisheryServiceImpl(
             return 0.0
         }
 
+        // Use existing currency rate
         return currencyExisting.value
     }
 
+    // Check is Currency rate stored more than 1 days
     private fun isCurrencyExpired(currencyExisting: Currency): Boolean {
         return ChronoUnit.DAYS.between(currencyExisting.modifiedDate, LocalDateTime.now()) > 1
     }
