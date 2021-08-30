@@ -24,7 +24,7 @@ class AuthServiceImpl(
                 .setSigningKey(userProp.secret) // parse with secret key/public key
                 .parseClaimsJws(jwtRequest.token) // input token JWT
                 .body // Get claims
-        } catch (e: SignatureException) {
+        } catch (e: Exception) {
             throw AuthenticationFailedException(e.message)
         }
     }

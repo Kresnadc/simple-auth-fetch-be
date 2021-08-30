@@ -27,9 +27,9 @@ class ControllerAdviceRequestError : ResponseEntityExceptionHandler() {
     fun handleAuthFailed(ex: AuthenticationFailedException, request: WebRequest): ResponseEntity<BaseResponse<String>> {
         val errorDetails = BaseResponse(
             Date(),
-            "Auth Failed",
+            "authToken missing or not valid!",
             ex.message!!
         )
-        return ResponseEntity(errorDetails, HttpStatus.CONFLICT)
+        return ResponseEntity(errorDetails, HttpStatus.UNAUTHORIZED)
     }
 }

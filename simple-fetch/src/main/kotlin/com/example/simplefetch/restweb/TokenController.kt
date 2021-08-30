@@ -16,7 +16,7 @@ class TokenController(
 ) {
 
     @PostMapping("/parse")
-    fun generateToken(@RequestBody jwtRequest: JwtRequest): ResponseEntity<JwtResponse> {
+    fun getPayload(@RequestBody jwtRequest: JwtRequest): ResponseEntity<JwtResponse> {
         return ResponseEntity.ok(
             JwtResponse(authService.getPayloadJWT(jwtRequest))
         )
