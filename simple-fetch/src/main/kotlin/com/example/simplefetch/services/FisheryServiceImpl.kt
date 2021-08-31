@@ -1,6 +1,7 @@
 package com.example.simplefetch.services
 
 import com.example.simplefetch.configuration.UserProp
+import com.example.simplefetch.model.dao.AggregateResults
 import com.example.simplefetch.model.dao.Currency
 import com.example.simplefetch.model.dao.Fishery
 import com.example.simplefetch.model.dto.FisheryResponse
@@ -17,6 +18,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
 
@@ -52,7 +55,7 @@ class FisheryServiceImpl(
                     fisheryRes.areaKota,
                     fisheryRes.size,
                     fisheryRes.price,
-                    fisheryRes.tglParsed,
+                    formatToDate(fisheryRes.tglParsed),
                     fisheryRes.timestamp,
                 )
 
@@ -76,7 +79,7 @@ class FisheryServiceImpl(
         logger.info("Price IDR to USD : $rate")
 
         for (fishery in fisheries) {
-            var priceUsd : Double? = null
+            var priceUsd: Double? = null
 
             if (fishery.price != null) {
                 priceUsd = rate * fishery.price!!
@@ -156,6 +159,26 @@ class FisheryServiceImpl(
 
     // Check is Currency rate stored more than 1 days
     private fun isCurrencyExpired(currencyExisting: Currency): Boolean {
-        return ChronoUnit.DAYS.between(currencyExisting.modifiedDate, LocalDateTime.now()) > 1
+        return ChronoUnit.DAYS.between(
+            currencyExisting.modifiedDate,
+            LocalDateTime.now()
+        ) > 1
+    }
+
+    fun formatToDate(str: String?): LocalDateTime? {
+        if (str == null) {
+            return null
+        }
+        var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+
+        var strTemp = str.subSequence(0, 19)
+        return LocalDateTime.parse(strTemp, formatter)
+    }
+
+    /**
+     * Function for acquiring aggregate from resource
+     */
+    override fun fetchDataAggregate(): List<AggregateResults> {
+        return fisheryRepository.findByAggregate()
     }
 }

@@ -1,5 +1,6 @@
 package com.example.simplefetch.restweb
 
+import com.example.simplefetch.model.dao.AggregateResults
 import com.example.simplefetch.model.dto.FisheryResponse
 import com.example.simplefetch.model.dto.JwtRequest
 import com.example.simplefetch.services.AuthService
@@ -23,9 +24,14 @@ class FisheryController(
         return ResponseEntity.ok(fisheryService.fetchData())
     }
 
-    @GetMapping("/fetch")
-    fun fetchFromOutbound(@RequestHeader("Authorization") token: String): ResponseEntity<String> {
+    @GetMapping("/list/aggregate")
+    fun getAggregate(@RequestHeader("Authorization") token: String): ResponseEntity<List<AggregateResults>> {
         authService.getPayloadJWT(JwtRequest(token))
-        return ResponseEntity.ok(fisheryService.fetchOutboundData())
+        return ResponseEntity.ok(fisheryService.fetchDataAggregate())
     }
+
+//    @GetMapping("/fetch")
+//    fun fetchFromOutbound(@RequestHeader("Authorization") token: String): ResponseEntity<String> {
+//        return ResponseEntity.ok(fisheryService.fetchOutboundData())
+//    }
 }

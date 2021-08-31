@@ -1,5 +1,6 @@
 package com.example.simplefetch.model.dao
 
+import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
@@ -24,9 +25,9 @@ data class Fishery(
     @Column(name = "price", nullable = true)
     var price: Double?,
     @Column(name = "tgl_parsed", nullable = true)
-    var tglParsed: String?,
+    var tglParsed: LocalDateTime?,
     @Column(name = "timestamp", nullable = true)
-    var timestamp: String?,
+    var timestamp: Timestamp?,
 
     @Column(name = "createdDate")
     var createdDate: LocalDateTime = LocalDateTime.now(),

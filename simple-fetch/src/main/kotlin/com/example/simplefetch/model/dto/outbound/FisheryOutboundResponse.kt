@@ -1,7 +1,11 @@
 package com.example.simplefetch.model.dto.outbound
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.Column
 
@@ -22,5 +26,5 @@ data class FisheryOutboundResponse(
     @JsonProperty("tgl_parsed")
     var tglParsed: String?,
     @JsonProperty("timestamp")
-    var timestamp: String?,
+    var timestamp: Timestamp?,
 )
